@@ -1,0 +1,103 @@
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+import cmath
+import math
+
+
+def array_layout(stations):
+
+    x_stations = np.zeros(len(stations))
+    y_stations = np.zeros(len(stations))
+    for i in xrange(len(stations)):
+        x_stations[i] = stations[i][0]
+        y_stations[i] = stations[i][1]
+
+    fig = plt.figure()
+    matplotlib.rcParams.update({'font.size': 18})
+    plt.plot(x_stations,y_stations,'ro',markersize=15)
+
+    plt.xlabel('x(m)',size=25)
+    plt.ylabel('y(m)',size=25)
+    plt.ylim(-1000,1000)
+    plt.xlim(-1000,1000)
+    #plt.show()
+
+def array_distance_angle_elements(stations):
+    distance = []
+    angle = []
+
+    x_stations = np.zeros(len(stations))
+    y_stations = np.zeros(len(stations))
+    for i in xrange(len(stations)):
+        x_stations[i] = stations[i][0]
+        y_stations[i] = stations[i][1]
+
+    for i in range(len(stations)):
+        for j in range(len(stations)):
+            if i!=j:
+                distance.append(np.sqrt((x_stations[i]-x_stations[j])**2+(y_stations[i]-y_stations[j])**2))
+
+                angle.append(abs(np.degrees(np.arctan2((y_stations[i]-y_stations[j]),(x_stations[i]-x_stations[j])))))
+
+
+    #Plot of Angle and Distance between each element of the array
+    fig = plt.figure()
+    plt.plot(distance,angle,'ro',markersize=15)
+    pl = plt.gca()
+    #pl.set_xlim(700,1700)
+    plt.axis('equal')
+    plt.axis([900,1300,-30,200])
+
+    #pl.set_ylim(-30,200)
+    #pl.set_xlim(800,1600)
+    #pl.set_ylim(min(angle)-10,max(angle)+10)
+    plt.xlabel('Distance (m)',size=25)
+    plt.ylabel('Angle (deg)', size=25)
+    #plt.show()
+    plt.gcf().subplots_adjust(bottom=0.15,left=0.18)
+
+    #!!!!!!!!!!!!!!!!!!!!!!
+    frame1 = plt.gca()
+    #frame1.set_yticklabels([])
+    #frame1.set_xticklabels([])
+    #!!!!!!!!!!!!!!!!!!!!!!
+    plt.grid()
+    #plt.savefig(path, format='png')
+
+    plt.show()
+    plt.close(fig)
+
+
+def array_response(stations, frequency):
+    
+    grid = 1000
+
+    number_stations = len(stations)
+    slowness = np.linspace(-0.005,0.005,grid)
+    array_response = np.zeros((len(slowness),len(slowness)),dtype = np.complex)
+
+
+    for i in xrange(len(slowness)):
+        for j in xrange(len(slowness)):
+            R_sum = 0.
+            for st in xrange(number_stations):
+               #R_sum = R_sum + cmath.exp(-(1.j)*2*np.pi*frequency*((slowness[i]*stations[st][0])+slowness[j]*stations[st][1]))
+                R_sum = R_sum + cmath.exp(-(1.j)*2*np.pi*frequency*((slowness[j]*stations[st][0])+slowness[i]*stations[st][1]))
+            array_response[i][j] = (abs((1./number_stations)*R_sum))**2
+
+    #Plot 3 (Array Response at p_y = 0 line)
+    plt.plot(slowness,array_response[len(slowness)/2][:], linewidth=3.0, color="k")
+    pl = plt.gca()
+    pl.set_xlim(min(slowness),max(slowness))
+    pl.set_ylim(-0.2,1.2)
+    plt.xlabel("$p_x (s/m)$", size=25)
+    plt.ylabel("Response", size=25)
+    plt.show()
+    plt.gcf().subplots_adjust(bottom=0.15,left=0.18)
+
+    plt.grid()
+
+
+
+
